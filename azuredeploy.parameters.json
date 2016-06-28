@@ -1,0 +1,39 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.1",
+  "parameters": {
+    "adminPassword": {
+      "value": "kR27U9Pc"
+    },
+    "numberOfDataNodes": {
+      "value": 2
+    },
+    "numberOfMasterNodes": {
+      "value": 2
+    },
+    "dnsNamePrefix": {
+      "value": "caukwedi"
+    },
+    "location": {
+      "value": "westeurope"
+    },
+    "storageAccountType": {
+      "value": "Premium_LRS"
+    },
+    "virtualNetworkName": {
+      "value": "corevnet-sub6"
+    },
+    "subnetName": {
+      "value": "cloudera-trusted"
+    },
+    "tshirtSize": {
+      "value": "Prod"
+    },
+    "dnvmSize": {
+      "value": "Standard_DS14"
+    },
+    "mnvmSize": {
+      "value": "Standard_DS14"
+    }
+  }
+}
