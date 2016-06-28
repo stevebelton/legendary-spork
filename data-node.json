@@ -233,7 +233,7 @@
           "vmSize": "[parameters('vmSpec').dataNodeVMSize]"
         },
         "osProfile": {
-          "computerName": "[concat(variables('vmName'), copyIndex(), parameters('location'), '.cloudapp.azure.com')]",
+          "computerName": "[concat(variables('vmName'), copyIndex(), '.', parameters('location'), '.cloudapp.azure.com')]",
           "adminUsername": "[parameters('vmSpec').adminUserName]",
           "adminPassword": "[parameters('vmSpec').adminPassword]",
           "linuxConfiguration": {
