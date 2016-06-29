@@ -36,7 +36,7 @@
   "variables": {
     "masterIP": "[parameters('networkSpec').masterIP]",
     "workerIP": "[parameters('networkSpec').workerIP]",
-    "currentNodeIP": "[parameters('networkSpec').currentIP]",
+    "currentIP": "[parameters('networkSpec').currentIP]",
     "vmName": "[concat(parameters('dnsNamePrefix'), 'vldedn')]",
     "nicName": "[concat(parameters('dnsNamePrefix'), 'nidedn')]",
     "storageAccountName": "[concat(parameters('dnsNamePrefix'), 'sadedn')]",
@@ -63,7 +63,7 @@
             "name": "ipconfig1",
             "properties": {
               "privateIPAllocationMethod": "Static",
-              "privateIPAddress": "[variables('currentNodeIP')]",
+              "privateIPAddress": "[variables('currentIP')]",
               "subnet": {
                 "id": "[concat(parameters('vnetID'), '/subnets/', parameters('networkSpec').virtualNetworkSubnetName)]"
               }
@@ -251,10 +251,6 @@
       "name": "[concat(variables('vmName'), parameters('vmSuffix'), '/prepareDisks')]",
       "apiVersion": "[parameters('resourceAPIVersion')]",
       "location": "[resourceGroup().location]",
-      "copy": {
-        "name": "dataNodeNicLoop",
-        "count": "[parameters('vmCount')]"
-      },
       "dependsOn": [
         "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'), parameters('vmSuffix'))]"
       ],

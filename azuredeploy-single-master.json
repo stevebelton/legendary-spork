@@ -100,6 +100,37 @@
       "metadata": {
         "description": "The size of the Master VMs deployed in the cluster (defaults to Standard_DS14)"
       }
+    },
+    "tshirtSize": {
+      "type": "string",
+      "defaultValue": "Prod",
+      "allowedValues": [
+        "Dev",
+        "Prod"
+      ],
+      "metadata": {
+        "description": "T-shirt size of the Cloudera cluster (Dev, Prod)"
+      }
+    },
+    "numberOfDataNodes": {
+      "type": "int",
+      "defaultValue": 5,
+      "metadata": {
+        "description": "Number of data nodes for Prod (defaults to 3)"
+      }
+    },
+    "numberOfMasterNodes": {
+      "type": "int",
+      "defaultValue": 2,
+      "metadata": {
+        "description": "Number of master nodes for Prod (defaults to 2)"
+      }
+    },
+    "vmSuffix": {
+      "type": "int",
+      "metadata": {
+        "description": "The next ID to use for the additional VM"
+      }
     }
   },
   "variables": {
@@ -107,9 +138,26 @@
     "resourceAPIVersion": "2015-06-15",
     "addressPrefix": "[parameters('addressPrefix')]",
     "subnetPrefix": "[parameters('subnetPrefix')]",
-    "scriptsUri": "https://raw.githubusercontent.com/stevebelton/legendary-spork/master",   
+    "scriptsUri": "https://raw.githubusercontent.com/stevebelton/legendary-spork/master",
     "storageAccount": {
       "type": "[parameters('storageAccountType')]"
+    },
+    "vmSpec": {
+      "masterNodeVMSize": "[parameters('mnvmSize')]",
+      "adminUserName": "[parameters('adminUserName')]",
+      "adminPassword": "[parameters('adminPassword')]",
+      "masterNodeASName": "[concat(parameters('dnsNamePrefix'), 'asmn')]"
+    },
+    "networkSpec": {
+      "addressPrefix": "[variables('addressPrefix')]",
+      "subnetPrefix": "[variables('subnetPrefix')]",
+      "masterIP": "[parameters('masterNodeIPAddress')]",
+      "workerIP": "[parameters('dataNodeIPAddress')]",
+      "currentIP": "[parameters('currentNodeIPAddress')]",
+      "virtualNetworkName": "[parameters('virtualNetworkName')]",
+      "virtualNetworkRGName": "[parameters('virtualNetworkRGName')]",
+      "vnetNewOrExisting": "existing",
+      "virtualNetworkSubnetName": "[parameters('subnetName')]"
     },
     "clusterTshirtSizeDev": {
       "masterNodeCount": "1",
@@ -122,23 +170,6 @@
       "highAvailability": "true"
     },
     "clusterSpec": "[variables(concat('clusterTshirtSize', parameters('tshirtSize')))]",
-    "vmSpec": {
-      "masterNodeVMSize": "[parameters('mnvmSize')]",
-      "adminUserName": "[parameters('adminUserName')]",
-      "adminPassword": "[parameters('adminPassword')]",
-      "masterNodeASName": "[concat(parameters('dnsNamePrefix'), 'asmn')]"
-    },
-    "networkSpec": {
-      "addressPrefix": "[variables('addressPrefix')]",
-      "subnetPrefix": "[variables('subnetPrefix')]",
-      "masterIP": "[variables('masterNodeIPAddress')]",
-      "workerIP": "[variables('dataNodeIPAddress)]",
-      "currentIP": "[variables('currentNodeIPAddress')]", 
-      "virtualNetworkName": "[parameters('virtualNetworkName')]",
-      "virtualNetworkRGName": "[parameters('virtualNetworkRGName')]",
-      "vnetNewOrExisting": "existing",
-      "virtualNetworkSubnetName": "[parameters('subnetName')]"
-    },
     "existingVNetId": "[resourceId(parameters('virtualNetworkRGName'),concat('Microsoft.Network','/','virtualNetworks'),parameters('virtualNetworkName'))]",
     "VNetId": "[variables('existingVNetId')]"
   },
@@ -183,6 +214,9 @@
           },
           "clusterSpec": {
             "value": "[variables('clusterSpec')]"
+          },
+          "vmSuffix": {
+            "value": "[parameters('vmSuffix')]"
           }
         }
       }
