@@ -1,0 +1,200 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.1",
+  "parameters": {
+    "adminUserName": {
+      "type": "string",
+      "defaultValue": "azureuser",
+      "metadata": {
+        "description": "Admin user name for the VM"
+      }
+    },
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Admin password for the VM (A mix of upper and lower-case characters, digits and symbols)"
+      }
+    },
+    "dnsNamePrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "Unique public DNS name where the VM will be exposed"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "westeurope",
+      "allowedValues": [
+        "westeurope"
+      ],
+      "metadata": {
+        "description": "Location where resources will be provisioned (must support premium storage)"
+      }
+    },
+    "storageAccountType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "metadata": {
+        "description": "The type of the Storage Account to be created (Default to Premium_LRS)"
+      }
+    },
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "corevnet-sub6",
+      "metadata": {
+        "description": "The name of the virtual network provisioned for the deployment"
+      }
+    },
+    "virtualNetworkRGName": {
+      "type": "string",
+      "defaultValue": "CoreNetwork-Sub6",
+      "metadata": {
+        "description": "Resource Group Name for Vnet. For new VNet leave it empty, otherwise type in existing resource group name"
+      }
+    },
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "cloudera-trusted",
+      "metadata": {
+        "description": "Subnet name for the virtual network where resources will be provisioned"
+      }
+    },
+    "addressPrefix": {
+      "type": "string",
+      "defaultValue": "10.155.0.0/16",
+      "metadata": {
+        "description": "Virtual Network address CIDR"
+      }
+    },
+    "subnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.155.14.0/24",
+      "metadata": {
+        "description": "CIDR for the subnet where the VM will be placed"
+      }
+    },
+    "masterNodeIPAddress": {
+      "type": "string",
+      "defaultValue": "10.155.14.4",
+      "metadata": {
+        "description": "IP address of the first master node"
+      }
+    },
+    "dataNodeIPAddress": {
+      "type": "string",
+      "defaultValue": "10.155.14.9",
+      "metadata": {
+        "description": "IP address of the first data node"
+      }
+    },
+    "currentNodeIPAddress": {
+      "type": "string",
+      "defaultValue": "10.155.14.14",
+      "metadata": {
+        "description": "IP address of the next data node"
+      }
+    },
+    "dnvmSize": {
+      "type": "string",
+      "defaultValue": "Standard_DS14",
+      "metadata": {
+        "description": "The size of the Data VMs deployed in the cluster (defaults to Standard_DS14)"
+      }
+    },
+    "vmSuffix": {
+      "type": "int",
+      "metadata": {
+        "description": "The next ID to use for the data node virtual machine name"
+      }
+    }
+  },
+  "variables": {
+    "templateAPIVersion": "2015-11-01",
+    "resourceAPIVersion": "2015-06-15",
+    "addressPrefix": "[parameters('addressPrefix')]",
+    "subnetPrefix": "[parameters('subnetPrefix')]",
+    "scriptsUri": "https://raw.githubusercontent.com/stevebelton/legendary-spork/master",    
+    "storageAccount": {
+      "type": "[parameters('storageAccountType')]"
+    },
+    "clusterTshirtSizeDev": {
+      "masterNodeCount": "1",
+      "dataNodeCount": "1",
+      "highAvailability": "false"
+    },
+    "clusterTshirtSizeProd": {
+      "masterNodeCount": "[parameters('numberOfMasterNodes')]",
+      "dataNodeCount": "[parameters('numberOfDataNodes')]",
+      "highAvailability": "true"
+    },
+    "clusterSpec": "[variables(concat('clusterTshirtSize', parameters('tshirtSize')))]",
+    "vmSpec": {
+      "dataNodeVMSize": "[parameters('dnvmSize')]",
+      "adminUserName": "[parameters('adminUserName')]",
+      "adminPassword": "[parameters('adminPassword')]",
+      "dataNodeASName": "[concat(parameters('dnsNamePrefix'), 'asdn')]"
+    },
+    "networkSpec": {
+      "addressPrefix": "[variables('addressPrefix')]",
+      "subnetPrefix": "[variables('subnetPrefix')]",
+      "masterIP": "[variables('masterNodeIPAddress')]",
+      "workerIP": "[variables('dataNodeIPAddress)]",
+      "currentIP": "[variables('currentNodeIPAddress')]", 
+      "virtualNetworkName": "[parameters('virtualNetworkName')]",
+      "virtualNetworkRGName": "[parameters('virtualNetworkRGName')]",
+      "vnetNewOrExisting": "existing",
+      "virtualNetworkSubnetName": "[parameters('subnetName')]"
+    },
+    "existingVNetId": "[resourceId(parameters('virtualNetworkRGName'),concat('Microsoft.Network','/','virtualNetworks'),parameters('virtualNetworkName'))]",
+    "VNetId": "[variables('existingVNetId')]"
+  },
+  "resources": [
+    {
+      "name": "data-node",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "[variables('templateAPIVersion')]",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[concat(variables('scriptsUri'), '/single-data-node.json')]",
+          "contentVersion": "1.0.0.1"
+        },
+        "parameters": {
+          "vnetID":{
+            "value":"[variables('VNetId')]"
+          },
+          "resourceAPIVersion":{
+            "value":"[variables('resourceAPIVersion')]"
+          },
+          "dnsNamePrefix": {
+            "value": "[parameters('dnsNamePrefix')]"
+          },
+          "location": {
+            "value": "[parameters('location')]"
+          },
+          "scriptsUri": {
+            "value": "[variables('scriptsUri')]"
+          },
+          "storageAccount": {
+            "value": "[variables('storageAccount')]"
+          },
+          "vmCount": {
+            "value": "[variables('clusterSpec').dataNodeCount]"
+          },
+          "vmSpec": {
+            "value": "[variables('vmSpec')]"
+          },
+          "networkSpec": {
+            "value": "[variables('networkSpec')]"
+          },
+          "clusterSpec": {
+            "value": "[variables('clusterSpec')]"
+          },
+          "vmSuffix": {
+            "value": "[parameters('vmSuffix')]"
+          }
+        }
+      }
+    }
+  ]
+}

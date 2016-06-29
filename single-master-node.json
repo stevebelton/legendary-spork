@@ -1,0 +1,282 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.1",
+  "parameters": {
+    "vnetID": {
+      "type": "string"
+    },
+    "resourceAPIVersion": {
+      "type": "string"
+    },
+    "dnsNamePrefix": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "scriptsUri": {
+      "type": "string"
+    },
+    "storageAccount": {
+      "type": "object"
+    },
+    "vmSpec": {
+      "type": "secureobject"
+    },
+    "networkSpec": {
+      "type": "object"
+    },
+    "clusterSpec": {
+      "type": "object"
+    },
+    "vmSuffix": {
+      "type": "int"
+    }
+  },
+  "variables": {
+    "masterIP": "[parameters('networkSpec').masterIP]",
+    "workerIP": "[parameters('networkSpec').workerIP]",
+    "currentNodeIP": "[parameters('networkSpec').currentIP]",
+    "vmName": "[concat(parameters('dnsNamePrefix'), 'vldedn')]",
+    "nicName": "[concat(parameters('dnsNamePrefix'), 'nidedn')]",
+    "storageAccountName": "[concat(parameters('dnsNamePrefix'), 'sadedn')]",
+    "securityGroupName": "[concat(parameters('dnsNamePrefix'), 'ngdedn')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "[concat(variables('storageAccountName'), parameters('vmSuffix'))]",
+      "apiVersion": "[parameters('resourceAPIVersion')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "accountType": "[parameters('storageAccount').type]"
+      }
+    },
+    {
+      "apiVersion": "[parameters('resourceAPIVersion')]",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "[concat(variables('nicName'), parameters('vmSuffix'))]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "privateIPAllocationMethod": "Static",
+              "privateIPAddress": "[variables('currentNodeIP')]",
+              "subnet": {
+                "id": "[concat(parameters('vnetID'), '/subnets/', parameters('networkSpec').virtualNetworkSubnetName)]"
+              }
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('securityGroupName'))]"
+        }
+      }
+    },
+    {
+      "apiVersion": "[parameters('resourceAPIVersion')]",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "[concat(variables('vmName'), parameters('vmSuffix'))]",
+      "plan": {
+        "name": "cloudera-centos-6",
+        "publisher": "cloudera",
+        "product": "cloudera-centos-6"
+      },
+      "location": "[parameters('location')]",     
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'), parameters('vmSuffix'))]",
+        "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'), parameters('vmSuffix'))]"
+      ],
+      "properties": {
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('vmSpec').dataNodeASName)]"
+        },
+        "hardwareProfile": {
+          "vmSize": "[parameters('vmSpec').dataNodeVMSize]"
+        },
+        "osProfile": {
+          "computerName": "[concat(variables('vmName'), parameters('vmSuffix'), '.', parameters('location'), '.cloudapp.azure.com')]",
+          "adminUsername": "[parameters('vmSpec').adminUserName]",
+          "adminPassword": "[parameters('vmSpec').adminPassword]",
+          "linuxConfiguration": {
+            "disablePasswordAuthentication": "false"
+          }
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "cloudera",
+            "offer": "cloudera-centos-6",
+            "sku": "CLOUDERA-CENTOS-6",
+            "version": "latest"
+          },
+          "osDisk": {
+            "name": "osdisk",
+            "vhd": {
+              "uri": "[concat('http://', variables('storageAccountName'), parameters('vmSuffix'), '.blob.core.windows.net/vhds/', variables('vmName'), copyIndex(), '.vhd')]"
+            },
+            "caching": "ReadWrite",
+            "createOption": "FromImage"
+          },
+          "dataDisks": [
+            {
+              "name": "datadisk0",
+              "diskSizeGB": "1023",
+              "lun": 0,
+              "vhd": {
+                "uri": "[concat('http://', variables('storageAccountName'), parameters('vmSuffix'), '.blob.core.windows.net/vhds0/', variables('vmName'), '-datadisk0.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk1",
+              "diskSizeGB": "1023",
+              "lun": 1,
+              "vhd": {
+                "uri": "[concat('http://', variables('storageAccountName'), parameters('vmSuffix'), '.blob.core.windows.net/vhds1/', variables('vmName'), '-datadisk1.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk2",
+              "diskSizeGB": "1023",
+              "lun": 2,
+              "vhd": {
+                "uri": "[concat('http://', variables('storageAccountName'), parameters('vmSuffix'), '.blob.core.windows.net/vhds2/', variables('vmName'), '-datadisk2.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk3",
+              "diskSizeGB": "1023",
+              "lun": 3,
+              "vhd": {
+                "uri": "[concat('http://', variables('storageAccountName'), parameters('vmSuffix'), '.blob.core.windows.net/vhds3/', variables('vmName'), '-datadisk3.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk4",
+              "diskSizeGB": "1023",
+              "lun": 4,
+              "vhd": {
+                "uri": "[concat('http://', variables('storageAccountName'), parameters('vmSuffix'), '.blob.core.windows.net/vhds4/', variables('vmName'), '-datadisk4.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk5",
+              "diskSizeGB": "1023",
+              "lun": 5,
+              "vhd": {
+                "uri": "[concat('http://', variables('storageAccountName'), parameters('vmSuffix'), '.blob.core.windows.net/vhds5/', variables('vmName'), '-datadisk5.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk6",
+              "diskSizeGB": "1023",
+              "lun": 6,
+              "vhd": {
+                "uri": "[concat('http://', variables('storageAccountName'), parameters('vmSuffix'), '.blob.core.windows.net/vhds6/', variables('vmName'), '-datadisk6.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk7",
+              "diskSizeGB": "1023",
+              "lun": 7,
+              "vhd": {
+                "uri": "[concat('http://', variables('storageAccountName'), parameters('vmSuffix'), '.blob.core.windows.net/vhds7/', variables('vmName'), '-datadisk7.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk8",
+              "diskSizeGB": "1023",
+              "lun": 8,
+              "vhd": {
+                "uri": "[concat('http://', variables('storageAccountName'), parameters('vmSuffix'), '.blob.core.windows.net/vhds8/', variables('vmName'), '-datadisk8.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk9",
+              "diskSizeGB": "1023",
+              "lun": 9,
+              "vhd": {
+                "uri": "[concat('http://', variables('storageAccountName'), parameters('vmSuffix'), '.blob.core.windows.net/vhds9/', variables('vmName'), '-datadisk9.vhd')]"
+              },
+              "createOption": "Empty"
+            },
+            {
+              "name": "datadisk10",
+              "diskSizeGB": "1023",
+              "lun": 10,
+              "vhd": {
+                "uri": "[concat('http://', variables('storageAccountName'), parameters('vmSuffix'), '.blob.core.windows.net/vhds10/', variables('vmName'), '-datadisk10.vhd')]"
+              },
+              "createOption": "Empty"
+            }
+          ]
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',concat(variables('nicName'), parameters('vmSuffix')))]"
+            }
+          ],
+          "inputEndpoints": [
+            {
+              "enableDirectServerReturn": "False",
+              "endpointName": "HDFS.dn.Web.UI",
+              "privatePort": 50075,
+              "publicPort": 50075,
+              "protocol": "tcp"
+            },
+            {
+              "enableDirectServerReturn": "False",
+              "endpointName": "YARN.nm.Web.UI",
+              "privatePort": 8042,
+              "publicPort": 8042,
+              "protocol": "tcp"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(variables('vmName'), parameters('vmSuffix'), '/prepareDisks')]",
+      "apiVersion": "[parameters('resourceAPIVersion')]",
+      "location": "[resourceGroup().location]",
+      "copy": {
+        "name": "dataNodeNicLoop",
+        "count": "[parameters('vmCount')]"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'), parameters('vmSuffix'))]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.OSTCExtensions",
+        "type": "CustomScriptForLinux",
+        "typeHandlerVersion": "1.4",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[concat(parameters('scriptsUri'), '/scripts/prepare-datanode-disks.sh')]",
+            "[concat(parameters('scriptsUri'), '/scripts/initialize-node.sh')]"
+          ],
+          "commandToExecute": "[concat('sh initialize-single-node.sh \"', variables('masterIP'), '\" \"', variables('workerIP'), '\" \"', parameters('dnsNamePrefix'), '\" \"', concat(parameters('location'),'.cloudapp.azure.com'), '\" ', parameters('clusterSpec').masterNodeCount, ' ', parameters('clusterSpec').dataNodeCount, ' \"', parameters('vmSpec').adminUserName, '\" ', 'datanode', ' >> /home/$ADMINUSER/initialize-datanode.log 2>&1')]"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "fqdn": {
+      "type": "string",
+      "value": "[concat(variables('vmName'), parameters('vmSuffix'), '.', parameters('location'),'.cloudapp.azure.com')]"
+    }
+  }
+}
