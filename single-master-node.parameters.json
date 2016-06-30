@@ -9,7 +9,7 @@
       "value": 2
     },
     "numberOfMasterNodes": {
-      "value": 2
+      "value": 3
     },
     "dnsNamePrefix": {
       "value": "c4ukwedi"
@@ -29,11 +29,14 @@
     "tshirtSize": {
       "value": "Prod"
     },
-    "dnvmSize": {
-      "value": "Standard_DS14"
-    },
     "mnvmSize": {
       "value": "Standard_DS14"
+    },
+    "currentNodeIPAddress": {
+      "value": "10.155.14.6"
+    },
+    "vmSuffix": {
+      "value": 2
     }
   }
 }

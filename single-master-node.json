@@ -2,58 +2,196 @@
   "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.1",
   "parameters": {
-    "vnetID": {
-      "type": "string"
+    "adminUserName": {
+      "type": "string",
+      "defaultValue": "azureuser",
+      "metadata": {
+        "description": "Admin user name for the VM"
+      }
     },
-    "resourceAPIVersion": {
-      "type": "string"
+    "adminPassword": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Admin password for the VM (A mix of upper and lower-case characters, digits and symbols)"
+      }
     },
     "dnsNamePrefix": {
-      "type": "string"
+      "type": "string",
+      "metadata": {
+        "description": "Unique public DNS name where the VM will be exposed"
+      }
     },
     "location": {
-      "type": "string"
+      "type": "string",
+      "defaultValue": "westeurope",
+      "allowedValues": [
+        "westeurope"
+      ],
+      "metadata": {
+        "description": "Location where resources will be provisioned (must support premium storage)"
+      }
     },
-    "scriptsUri": {
-      "type": "string"
+    "storageAccountType": {
+      "type": "string",
+      "defaultValue": "Premium_LRS",
+      "metadata": {
+        "description": "The type of the Storage Account to be created (Default to Premium_LRS)"
+      }
     },
-    "storageAccount": {
-      "type": "object"
+    "virtualNetworkName": {
+      "type": "string",
+      "defaultValue": "corevnet-sub6",
+      "metadata": {
+        "description": "The name of the virtual network provisioned for the deployment"
+      }
     },
-    "vmSpec": {
-      "type": "secureobject"
+    "virtualNetworkRGName": {
+      "type": "string",
+      "defaultValue": "CoreNetwork-Sub6",
+      "metadata": {
+        "description": "Resource Group Name for Vnet. For new VNet leave it empty, otherwise type in existing resource group name"
+      }
     },
-    "networkSpec": {
-      "type": "object"
+    "subnetName": {
+      "type": "string",
+      "defaultValue": "cloudera-trusted",
+      "metadata": {
+        "description": "Subnet name for the virtual network where resources will be provisioned"
+      }
     },
-    "clusterSpec": {
-      "type": "object"
+    "addressPrefix": {
+      "type": "string",
+      "defaultValue": "10.155.0.0/16",
+      "metadata": {
+        "description": "Virtual Network address CIDR"
+      }
+    },
+    "subnetPrefix": {
+      "type": "string",
+      "defaultValue": "10.155.14.0/24",
+      "metadata": {
+        "description": "CIDR for the subnet where the VM will be placed"
+      }
+    },
+    "masterNodeIPAddress": {
+      "type": "string",
+      "defaultValue": "10.155.14.4",
+      "metadata": {
+        "description": "IP address of the first master node"
+      }
+    },
+    "dataNodeIPAddress": {
+      "type": "string",
+      "defaultValue": "10.155.14.9",
+      "metadata": {
+        "description": "IP address of the first data node"
+      }
+    },
+    "currentNodeIPAddress": {
+      "type": "string",
+      "defaultValue": "10.155.14.6",
+      "metadata": {
+        "description": "IP address of the next master node"
+      }
+    },
+    "mnvmSize": {
+      "type": "string",
+      "defaultValue": "Standard_DS14",
+      "metadata": {
+        "description": "The size of the Master VMs deployed in the cluster (defaults to Standard_DS14)"
+      }
+    },
+    "tshirtSize": {
+      "type": "string",
+      "defaultValue": "Prod",
+      "allowedValues": [
+        "Dev",
+        "Prod"
+      ],
+      "metadata": {
+        "description": "T-shirt size of the Cloudera cluster (Dev, Prod)"
+      }
+    },
+    "numberOfDataNodes": {
+      "type": "int",
+      "defaultValue": 5,
+      "metadata": {
+        "description": "Number of data nodes for Prod (defaults to 3)"
+      }
+    },
+    "numberOfMasterNodes": {
+      "type": "int",
+      "defaultValue": 2,
+      "metadata": {
+        "description": "Number of master nodes for Prod (defaults to 2)"
+      }
     },
     "vmSuffix": {
-      "type": "int"
+      "type": "int",
+      "metadata": {
+        "description": "The next ID to use for the additional VM"
+      }
     }
   },
   "variables": {
-    "masterIP": "[parameters('networkSpec').masterIP]",
-    "workerIP": "[parameters('networkSpec').workerIP]",
-    "currentIP": "[parameters('networkSpec').currentIP]",
-    "vmName": "[concat(parameters('dnsNamePrefix'), 'vldedn')]",
-    "nicName": "[concat(parameters('dnsNamePrefix'), 'nidedn')]",
-    "storageAccountName": "[concat(parameters('dnsNamePrefix'), 'sadedn')]",
-    "securityGroupName": "[concat(parameters('dnsNamePrefix'), 'ngdedn')]"
+    "templateAPIVersion": "2015-11-01",
+    "resourceAPIVersion": "2015-06-15",
+    "addressPrefix": "[parameters('addressPrefix')]",
+    "subnetPrefix": "[parameters('subnetPrefix')]",
+    "scriptsUri": "https://raw.githubusercontent.com/stevebelton/legendary-spork/master",
+    "storageAccount": {
+      "type": "[parameters('storageAccountType')]"
+    },
+    "vmSpec": {
+      "masterNodeVMSize": "[parameters('mnvmSize')]",
+      "adminUserName": "[parameters('adminUserName')]",
+      "adminPassword": "[parameters('adminPassword')]",
+      "masterNodeASName": "[concat(parameters('dnsNamePrefix'), 'asmn')]"
+    },
+    "networkSpec": {
+      "addressPrefix": "[variables('addressPrefix')]",
+      "subnetPrefix": "[variables('subnetPrefix')]",
+      "masterIP": "[parameters('masterNodeIPAddress')]",
+      "workerIP": "[parameters('dataNodeIPAddress')]",
+      "currentIP": "[parameters('currentNodeIPAddress')]",
+      "virtualNetworkName": "[parameters('virtualNetworkName')]",
+      "virtualNetworkRGName": "[parameters('virtualNetworkRGName')]",
+      "vnetNewOrExisting": "existing",
+      "virtualNetworkSubnetName": "[parameters('subnetName')]"
+    },
+    "clusterTshirtSizeDev": {
+      "masterNodeCount": "1",
+      "dataNodeCount": "1",
+      "highAvailability": "false"
+    },
+    "clusterTshirtSizeProd": {
+      "masterNodeCount": "[parameters('numberOfMasterNodes')]",
+      "dataNodeCount": "[parameters('numberOfDataNodes')]",
+      "highAvailability": "true"
+    },
+    "clusterSpec": "[variables(concat('clusterTshirtSize', parameters('tshirtSize')))]",
+    "existingVNetId": "[resourceId(parameters('virtualNetworkRGName'),concat('Microsoft.Network','/','virtualNetworks'),parameters('virtualNetworkName'))]",
+    "VNetId": "[variables('existingVNetId')]",
+    "masterIP": "[variables('networkSpec').masterIP]",
+    "workerIP": "[variables('networkSpec').workerIP]",
+    "currentIP": "[variables('networkSpec').currentIP]",
+    "vmName": "[concat(parameters('dnsNamePrefix'), 'vldenn')]",
+    "nicName": "[concat(parameters('dnsNamePrefix'), 'nidemn')]",
+    "storageAccountName": "[concat(parameters('dnsNamePrefix'), 'sademn')]",
+    "securityGroupName": "[concat(parameters('dnsNamePrefix'), 'ngdemn')]"
   },
   "resources": [
     {
       "type": "Microsoft.Storage/storageAccounts",
       "name": "[concat(variables('storageAccountName'), parameters('vmSuffix'))]",
-      "apiVersion": "[parameters('resourceAPIVersion')]",
+      "apiVersion": "[variables('resourceAPIVersion')]",
       "location": "[parameters('location')]",
       "properties": {
-        "accountType": "[parameters('storageAccount').type]"
+        "accountType": "[variables('storageAccount').type]"
       }
     },
     {
-      "apiVersion": "[parameters('resourceAPIVersion')]",
+      "apiVersion": "[variables('resourceAPIVersion')]",
       "type": "Microsoft.Network/networkInterfaces",
       "name": "[concat(variables('nicName'), parameters('vmSuffix'))]",
       "location": "[parameters('location')]",
@@ -65,7 +203,7 @@
               "privateIPAllocationMethod": "Static",
               "privateIPAddress": "[variables('currentIP')]",
               "subnet": {
-                "id": "[concat(parameters('vnetID'), '/subnets/', parameters('networkSpec').virtualNetworkSubnetName)]"
+                "id": "[concat(variables('vnetID'), '/subnets/', variables('networkSpec').virtualNetworkSubnetName)]"
               }
             }
           }
@@ -76,7 +214,7 @@
       }
     },
     {
-      "apiVersion": "[parameters('resourceAPIVersion')]",
+      "apiVersion": "[variables('resourceAPIVersion')]",
       "type": "Microsoft.Compute/virtualMachines",
       "name": "[concat(variables('vmName'), parameters('vmSuffix'))]",
       "plan": {
@@ -84,22 +222,22 @@
         "publisher": "cloudera",
         "product": "cloudera-centos-6"
       },
-      "location": "[parameters('location')]",     
+      "location": "[parameters('location')]",
       "dependsOn": [
         "[concat('Microsoft.Network/networkInterfaces/', variables('nicName'), parameters('vmSuffix'))]",
         "[concat('Microsoft.Storage/storageAccounts/', variables('storageAccountName'), parameters('vmSuffix'))]"
       ],
       "properties": {
         "availabilitySet": {
-          "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('vmSpec').dataNodeASName)]"
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', variables('vmSpec').masterNodeASName)]"
         },
         "hardwareProfile": {
-          "vmSize": "[parameters('vmSpec').dataNodeVMSize]"
+          "vmSize": "[variables('vmSpec').masterNodeVMSize]"
         },
         "osProfile": {
           "computerName": "[concat(variables('vmName'), parameters('vmSuffix'), '.', parameters('location'), '.cloudapp.azure.com')]",
-          "adminUsername": "[parameters('vmSpec').adminUserName]",
-          "adminPassword": "[parameters('vmSpec').adminPassword]",
+          "adminUsername": "[variables('vmSpec').adminUserName]",
+          "adminPassword": "[variables('vmSpec').adminPassword]",
           "linuxConfiguration": {
             "disablePasswordAuthentication": "false"
           }
@@ -114,7 +252,7 @@
           "osDisk": {
             "name": "osdisk",
             "vhd": {
-              "uri": "[concat('http://', variables('storageAccountName'), parameters('vmSuffix'), '.blob.core.windows.net/vhds/', variables('vmName'), copyIndex(), '.vhd')]"
+              "uri": "[concat('http://', variables('storageAccountName'), parameters('vmSuffix'), '.blob.core.windows.net/vhds/', variables('vmName'), parameters('vmSuffix'), '.vhd')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -249,7 +387,7 @@
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
       "name": "[concat(variables('vmName'), parameters('vmSuffix'), '/prepareDisks')]",
-      "apiVersion": "[parameters('resourceAPIVersion')]",
+      "apiVersion": "[variables('resourceAPIVersion')]",
       "location": "[resourceGroup().location]",
       "dependsOn": [
         "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'), parameters('vmSuffix'))]"
@@ -261,10 +399,10 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "fileUris": [
-            "[concat(parameters('scriptsUri'), '/scripts/prepare-datanode-disks.sh')]",
-            "[concat(parameters('scriptsUri'), '/scripts/initialize-node.sh')]"
+            "[concat(variables('scriptsUri'), '/scripts/prepare-masternode-disks.sh')]",
+            "[concat(variables('scriptsUri'), '/scripts/initialize-node.sh')]"
           ],
-          "commandToExecute": "[concat('sh initialize-single-node.sh \"', variables('masterIP'), '\" \"', variables('workerIP'), '\" \"', parameters('dnsNamePrefix'), '\" \"', concat(parameters('location'),'.cloudapp.azure.com'), '\" ', parameters('clusterSpec').masterNodeCount, ' ', parameters('clusterSpec').dataNodeCount, ' \"', parameters('vmSpec').adminUserName, '\" ', 'datanode', ' >> /home/$ADMINUSER/initialize-datanode.log 2>&1')]"
+          "commandToExecute": "[concat('sh initialize-node.sh \"', variables('masterIP'), '\" \"', variables('workerIP'), '\" \"', parameters('dnsNamePrefix'), '\" \"', concat(parameters('location'),'.cloudapp.azure.com'), '\" ', variables('clusterSpec').masterNodeCount, ' ', variables('clusterSpec').dataNodeCount, ' \"', variables('vmSpec').adminUserName, '\" ', 'masternode', ' >> /home/$ADMINUSER/initialize-masternode.log 2>&1')]"
         }
       }
     }
