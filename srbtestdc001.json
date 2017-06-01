@@ -27,7 +27,7 @@
         "displayName": "srbtestnidc001-01"
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/publicIPAddresses/', 'publicIPAddress')]"
+        "[resourceId('Microsoft.Network/publicIPAddresses/', 'srbtestdc001-pip')]"
       ],
       "properties": {
         "ipConfigurations": [
