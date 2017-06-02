@@ -4,7 +4,7 @@
   "parameters": {},
   "variables": {
     "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'srbprdwe-vnet')]",
-    "metricsresourceid": "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/',resourceGroup().name ,'/providers/','Microsoft.Compute/virtualMachines/',''))]",
+    "metricsresourceid": "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/',resourceGroup().name ,'/providers/','Microsoft.Compute/virtualMachines/','srbprdwefs002')]",
     "wadlogs": "<WadCfg> <DiagnosticMonitorConfiguration overallQuotaInMB=\\\"4096\\\" xmlns=\\\"http://schemas.microsoft.com/ServiceHosting/2010/10/DiagnosticsConfiguration\\\"> <DiagnosticInfrastructureLogs scheduledTransferLogLevelFilter=\\\"Error\\\"/> <WindowsEventLog scheduledTransferPeriod=\\\"PT1M\\\" > <DataSource name=\\\"Application!*[System[(Level = 1 or Level = 2)]]\\\" /> <DataSource name=\\\"Security!*[System[(Level = 1 or Level = 2)]]\\\" /> <DataSource name=\\\"System!*[System[(Level = 1 or Level = 2)]]\\\" /></WindowsEventLog>"
   },
   "resources": [
