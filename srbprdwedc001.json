@@ -132,7 +132,7 @@
                                             {
                                                 "type":  "extensions",
                                                 "name":  "Microsoft.Insights.VMDiagnosticsSettings",
-                                                "apiVersion":  "2015-05-01-preview",
+                                                "apiVersion":  "2016-04-30-preview",
                                                 "location":  "[resourceGroup().location]",
                                                 "dependsOn":  [
                                                                   "[resourceId('Microsoft.Compute/virtualMachines/', 'srbprdwedc001')]"
@@ -148,7 +148,7 @@
                                                                                 },
                                                                    "protectedSettings":  {
                                                                                              "storageAccountName":  "srbprdwedcdiag01",
-                                                                                             "storageAccountKey":  "[listkeys(resourceId('Microsoft.Storage/storageAccounts/', 'srbprdwedcdiag01'),'2016-04-30-preview').key1]",
+                                                                                             "storageAccountKey":  "[listkeys(resourceId('Microsoft.Storage/storageAccounts/', 'srbprdwedcdiag01'),'2015-05-01-preview').key1]",
                                                                                              "storageAccountEndPoint":  "https://core.windows.net/"
                                                                                          }
                                                                }
