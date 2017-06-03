@@ -132,7 +132,7 @@
                                             {
                                                 "type":  "extensions",
                                                 "name":  "Microsoft.Insights.VMDiagnosticsSettings",
-                                                "apiVersion":  "2016-04-30-preview",
+                                                "apiVersion":  "2015-05-01-preview",
                                                 "location":  "[resourceGroup().location]",
                                                 "dependsOn":  [
                                                                   "[resourceId('Microsoft.Compute/virtualMachines/', 'srbprdwedc002')]"
