@@ -81,9 +81,9 @@
                           "location":  "[resourceGroup().location]",
                           "dependsOn":  [
                                             "[resourceId('Microsoft.Storage/storageAccounts/', 'srbprdwedcsa01')]",
-                                            "[resourceId('Microsoft.Storage/storageAccounts/', 'srbprdwedcdiag01')]",
                                             "[resourceId('Microsoft.Network/networkInterfaces/', 'srbprdwedc002-nic01')]",
-                                            "[resourceId('Microsoft.Compute/availabilitySets/', 'srbprdwedc-as')]"
+                                            "[resourceId('Microsoft.Compute/availabilitySets/', 'srbprdwedc-as')]",
+                                            "[resourceId('Microsoft.Storage/storageAccounts/', 'srbprdwedcdiag01')]"
                                         ],
                           "properties":  {
                                              "hardwareProfile":  {
