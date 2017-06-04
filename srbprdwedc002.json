@@ -1,163 +1,366 @@
 {
-    "$schema":  "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion":  "1.0.0.0",
-    "parameters":  {
-
-                   },
-    "variables":  {
-                      "vnetID":  "[resourceId('Microsoft.Network/virtualNetworks', 'srbprdwe-vnet')]",
-                      "metricsresourceid":  "[concat('/subscriptions/',subscription().subscriptionId,'/resourceGroups/',resourceGroup().name ,'/providers/','Microsoft.Compute/virtualMachines/','srbprdwedc002')]",
-                      "wadlogs":  "\u003cWadCfg\u003e \u003cDiagnosticMonitorConfiguration overallQuotaInMB=\\\"4096\\\" xmlns=\\\"http://schemas.microsoft.com/ServiceHosting/2010/10/DiagnosticsConfiguration\\\"\u003e \u003cDiagnosticInfrastructureLogs scheduledTransferLogLevelFilter=\\\"Error\\\"/\u003e \u003cWindowsEventLog scheduledTransferPeriod=\\\"PT1M\\\" \u003e \u003cDataSource name=\\\"Application!*[System[(Level = 1 or Level = 2)]]\\\" /\u003e \u003cDataSource name=\\\"Security!*[System[(Level = 1 or Level = 2)]]\\\" /\u003e \u003cDataSource name=\\\"System!*[System[(Level = 1 or Level = 2)]]\\\" /\u003e\u003c/WindowsEventLog\u003e",
-                      "wadperfcounters":  "\u003cPerformanceCounters scheduledTransferPeriod=\\\"PT1M\\\"\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\Processor(_Total)\\\\% Processor Time\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Percent\\\"\u003e\u003cannotation displayName=\\\"CPU utilization\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\Processor(_Total)\\\\% Privileged Time\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Percent\\\"\u003e\u003cannotation displayName=\\\"CPU privileged time\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\Processor(_Total)\\\\% User Time\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Percent\\\"\u003e\u003cannotation displayName=\\\"CPU user time\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\Processor Information(_Total)\\\\Processor Frequency\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Count\\\"\u003e\u003cannotation displayName=\\\"CPU frequency\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\System\\\\Processes\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Count\\\"\u003e\u003cannotation displayName=\\\"Processes\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\Process(_Total)\\\\Thread Count\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Count\\\"\u003e\u003cannotation displayName=\\\"Threads\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\Process(_Total)\\\\Handle Count\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Count\\\"\u003e\u003cannotation displayName=\\\"Handles\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\Memory\\\\% Committed Bytes In Use\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Percent\\\"\u003e\u003cannotation displayName=\\\"Memory usage\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\Memory\\\\Available Bytes\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Bytes\\\"\u003e\u003cannotation displayName=\\\"Memory available\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\Memory\\\\Committed Bytes\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Bytes\\\"\u003e\u003cannotation displayName=\\\"Memory committed\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\Memory\\\\Commit Limit\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Bytes\\\"\u003e\u003cannotation displayName=\\\"Memory commit limit\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\PhysicalDisk(_Total)\\\\% Disk Time\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Percent\\\"\u003e\u003cannotation displayName=\\\"Disk active time\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e",
-                      "wadperfcounters2":  "\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\PhysicalDisk(_Total)\\\\% Disk Read Time\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Percent\\\"\u003e\u003cannotation displayName=\\\"Disk active read time\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\PhysicalDisk(_Total)\\\\% Disk Write Time\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Percent\\\"\u003e\u003cannotation displayName=\\\"Disk active write time\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\PhysicalDisk(_Total)\\\\Disk Transfers/sec\\\" sampleRate=\\\"PT15S\\\" unit=\\\"CountPerSecond\\\"\u003e\u003cannotation displayName=\\\"Disk operations\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\PhysicalDisk(_Total)\\\\Disk Reads/sec\\\" sampleRate=\\\"PT15S\\\" unit=\\\"CountPerSecond\\\"\u003e\u003cannotation displayName=\\\"Disk read operations\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\PhysicalDisk(_Total)\\\\Disk Writes/sec\\\" sampleRate=\\\"PT15S\\\" unit=\\\"CountPerSecond\\\"\u003e\u003cannotation displayName=\\\"Disk write operations\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\PhysicalDisk(_Total)\\\\Disk Bytes/sec\\\" sampleRate=\\\"PT15S\\\" unit=\\\"BytesPerSecond\\\"\u003e\u003cannotation displayName=\\\"Disk speed\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\PhysicalDisk(_Total)\\\\Disk Read Bytes/sec\\\" sampleRate=\\\"PT15S\\\" unit=\\\"BytesPerSecond\\\"\u003e\u003cannotation displayName=\\\"Disk read speed\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\PhysicalDisk(_Total)\\\\Disk Write Bytes/sec\\\" sampleRate=\\\"PT15S\\\" unit=\\\"BytesPerSecond\\\"\u003e\u003cannotation displayName=\\\"Disk write speed\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\LogicalDisk(_Total)\\\\% Free Space\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Percent\\\"\u003e\u003cannotation displayName=\\\"Disk free space (percentage)\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003c/PerformanceCounters\u003e",
-                      "wadmetrics":  "\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\PhysicalDisk(_Total)\\\\% Disk Read Time\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Percent\\\"\u003e\u003cannotation displayName=\\\"Disk active read time\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\PhysicalDisk(_Total)\\\\% Disk Write Time\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Percent\\\"\u003e\u003cannotation displayName=\\\"Disk active write time\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\PhysicalDisk(_Total)\\\\Disk Transfers/sec\\\" sampleRate=\\\"PT15S\\\" unit=\\\"CountPerSecond\\\"\u003e\u003cannotation displayName=\\\"Disk operations\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\PhysicalDisk(_Total)\\\\Disk Reads/sec\\\" sampleRate=\\\"PT15S\\\" unit=\\\"CountPerSecond\\\"\u003e\u003cannotation displayName=\\\"Disk read operations\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\PhysicalDisk(_Total)\\\\Disk Writes/sec\\\" sampleRate=\\\"PT15S\\\" unit=\\\"CountPerSecond\\\"\u003e\u003cannotation displayName=\\\"Disk write operations\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\PhysicalDisk(_Total)\\\\Disk Bytes/sec\\\" sampleRate=\\\"PT15S\\\" unit=\\\"BytesPerSecond\\\"\u003e\u003cannotation displayName=\\\"Disk speed\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\PhysicalDisk(_Total)\\\\Disk Read Bytes/sec\\\" sampleRate=\\\"PT15S\\\" unit=\\\"BytesPerSecond\\\"\u003e\u003cannotation displayName=\\\"Disk read speed\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\PhysicalDisk(_Total)\\\\Disk Write Bytes/sec\\\" sampleRate=\\\"PT15S\\\" unit=\\\"BytesPerSecond\\\"\u003e\u003cannotation displayName=\\\"Disk write speed\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003cPerformanceCounterConfiguration counterSpecifier=\\\"\\\\LogicalDisk(_Total)\\\\% Free Space\\\" sampleRate=\\\"PT15S\\\" unit=\\\"Percent\\\"\u003e\u003cannotation displayName=\\\"Disk free space (percentage)\\\" locale=\\\"en-us\\\"/\u003e\u003c/PerformanceCounterConfiguration\u003e\u003c/PerformanceCounters\u003e",
-                      "wadcfgx":  "[concat(variables('wadlogs'),variables('wadperfcounters'),variables('wadperfcounters2'),variables('wadmetrics'))]"
-                  },
-    "resources":  [
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "variables": {
+    "vnetID": "[resourceId('Microsoft.Network/virtualNetworks', 'srbprdwe-vnet')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "srbprdwedcsa01",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "srbprdwedcsa01"
+      },
+      "properties": {
+        "accountType": "Standard_LRS"
+      }
+    },
+    {
+      "apiVersion": "2016-03-30",
+      "type": "Microsoft.Network/networkInterfaces",
+      "name": "srbprdwedc002-nic01",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "srbprdwe002-nic01"
+      },
+      "dependsOn": [],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig01",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[concat(variables('vnetID'), '/subnets/subnet1')]"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "apiVersion": "2016-04-30-preview",
+      "type": "Microsoft.Compute/availabilitySets",
+      "name": "srbprdwedc-as",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "platformFaultDomainCount": 2,
+        "platformUpdateDomainCount": 2,
+        "managed": true
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "name": "srbprdwedcdiag01",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "tags": {
+        "displayName": "srbprdwedcdiag01"
+      },
+      "properties": {
+        "accountType": "Standard_LRS"
+      }
+    },
+    {
+      "apiVersion": "2016-04-30-preview",
+      "type": "Microsoft.Compute/virtualMachines",
+      "name": "srbprdwedc002",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/', 'srbprdwedcsa01')]",
+        "[resourceId('Microsoft.Network/networkInterfaces/', 'srbprdwedc002-nic01')]",
+        "[resourceId('Microsoft.Compute/availabilitySets/', 'srbprdwedc-as')]",
+        "[resourceId('Microsoft.Storage/storageAccounts/', 'srbprdwedcdiag01')]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "Standard_A2"
+        },
+        "availabilitySet": {
+          "id": "[resourceId('Microsoft.Compute/availabilitySets','srbprdwedc-as')]"
+        },
+        "osProfile": {
+          "computerName": "srbprdwedc002",
+          "adminUsername": "exgadmin",
+          "adminPassword": "Sm4llv1ll3!!"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "2016-Datacenter",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "FromImage"
+          },
+          "dataDisks": []
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "properties": {
+                "primary": true
+              },
+              "id": "[resourceId('Microsoft.Network/networkInterfaces/', 'srbprdwedc002-nic01')]"
+            }
+          ]
+        },
+        "diagnosticsProfile": {
+          "bootDiagnostics": {
+            "enabled": true,
+            "storageUri": "http://srbprdwedcdiag01.blob.core.windows.net"
+          }
+        }
+      },
+      "resources": [
+        {
+          "name": "Microsoft.Insights.VMDiagnosticsSettings",
+          "type": "Microsoft.Compute/virtualMachines/extensions",
+          "apiVersion": "2016-04-30-preview",
+          "location": "[resourceGroup().location]",
+          "dependsOn": [
+            "[resourceId('Microsoft.Compute/virtualMachines/', 'srbprdwedc002')]"
+          ],
+          "properties": {
+            "publisher": "Microsoft.Azure.Diagnostics",
+            "type": "IaaSDiagnostics",
+            "typeHandlerVersion": "1.5",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+              "StorageAccount": "srbprdwedcdiag01",
+              "WadCfg": {
+                "DiagnosticMonitorConfiguration": {
+                  "overallQuotaInMB": 5120,
+                  "Metrics": {
+                    "resourceId": "[resourceId('Microsoft.Compute/virtualMachines/', 'srbprdwedc002')]",
+                    "MetricAggregation": [
                       {
-                          "type":  "Microsoft.Storage/storageAccounts",
-                          "name":  "srbprdwedcsa01",
-                          "apiVersion":  "2015-06-15",
-                          "location":  "[resourceGroup().location]",
-                          "tags":  {
-                                       "displayName":  "srbprdwedcsa01"
-                                   },
-                          "properties":  {
-                                             "accountType":  "Standard_LRS"
-                                         }
+                        "scheduledTransferPeriod": "PT1H"
                       },
                       {
-                          "apiVersion":  "2016-03-30",
-                          "type":  "Microsoft.Network/networkInterfaces",
-                          "name":  "srbprdwedc002-nic01",
-                          "location":  "[resourceGroup().location]",
-                          "tags":  {
-                                       "displayName":  "srbprdwe002-nic01"
-                                   },
-                          "dependsOn":  [
-
-                                        ],
-                          "properties":  {
-                                             "ipConfigurations":  [
-                                                                      {
-                                                                          "name":  "ipconfig01",
-                                                                          "properties":  {
-                                                                                             "privateIPAllocationMethod":  "Dynamic",
-                                                                                             "subnet":  {
-                                                                                                            "id":  "[concat(variables('vnetID'), '/subnets/subnet1')]"
-                                                                                                        }
-                                                                                         }
-                                                                      }
-                                                                  ]
-                                         }
-                      },
-                      {
-                          "apiVersion":  "2016-04-30-preview",
-                          "type":  "Microsoft.Compute/availabilitySets",
-                          "name":  "srbprdwedc-as",
-                          "location":  "[resourceGroup().location]",
-                          "properties":  {
-                                             "platformFaultDomainCount":  2,
-                                             "platformUpdateDomainCount":  2,
-                                             "managed":  true
-                                         }
-                      },
-                      {
-                          "type":  "Microsoft.Storage/storageAccounts",
-                          "name":  "srbprdwedcdiag01",
-                          "apiVersion":  "2015-06-15",
-                          "location":  "[resourceGroup().location]",
-                          "tags":  {
-                                       "displayName":  "srbprdwedcdiag01"
-                                   },
-                          "properties":  {
-                                             "accountType":  "Standard_LRS"
-                                         }
-                      },
-                      {
-                          "apiVersion":  "2016-04-30-preview",
-                          "type":  "Microsoft.Compute/virtualMachines",
-                          "name":  "srbprdwedc002",
-                          "location":  "[resourceGroup().location]",
-                          "dependsOn":  [
-                                            "[resourceId('Microsoft.Storage/storageAccounts/', 'srbprdwedcsa01')]",
-                                            "[resourceId('Microsoft.Network/networkInterfaces/', 'srbprdwedc002-nic01')]",
-                                            "[resourceId('Microsoft.Compute/availabilitySets/', 'srbprdwedc-as')]",
-                                            "[resourceId('Microsoft.Storage/storageAccounts/', 'srbprdwedcdiag01')]"
-                                        ],
-                          "properties":  {
-                                             "hardwareProfile":  {
-                                                                     "vmSize":  "Standard_A2"
-                                                                 },
-                                             "availabilitySet":  {
-                                                                     "id":  "[resourceId('Microsoft.Compute/availabilitySets','srbprdwedc-as')]"
-                                                                 },
-                                             "osProfile":  {
-                                                               "computerName":  "srbprdwedc002",
-                                                               "adminUsername":  "exgadmin",
-                                                               "adminPassword":  "Sm4llv1ll3!!"
-                                                           },
-                                             "storageProfile":  {
-                                                                    "imageReference":  {
-                                                                                           "publisher":  "MicrosoftWindowsServer",
-                                                                                           "offer":  "WindowsServer",
-                                                                                           "sku":  "2016-Datacenter",
-                                                                                           "version":  "latest"
-                                                                                       },
-                                                                    "osDisk":  {
-                                                                                   "createOption":  "FromImage"
-                                                                               },
-                                                                    "dataDisks":  [
-
-                                                                                  ]
-                                                                },
-                                             "networkProfile":  {
-                                                                    "networkInterfaces":  [
-                                                                                              {
-                                                                                                  "properties":  {
-                                                                                                                     "primary":  true
-                                                                                                                 },
-                                                                                                  "id":  "[resourceId('Microsoft.Network/networkInterfaces/', 'srbprdwedc002-nic01')]"
-                                                                                              }
-                                                                                          ]
-                                                                },
-                                             "diagnosticsProfile":  {
-                                                                        "bootDiagnostics":  {
-                                                                                                "enabled":  true,
-                                                                                                "storageUri":  "http://srbprdwedcdiag01.blob.core.windows.net"
-                                                                                            }
-                                                                    }
-                                         },
-                          "resources":  [
-                                            {
-                                                "type":  "extensions",
-                                                "name":  "Microsoft.Insights.VMDiagnosticsSettings",
-                                                "apiVersion":  "2016-04-30-preview",
-                                                "location":  "[resourceGroup().location]",
-                                                "dependsOn":  [
-                                                                  "[resourceId('Microsoft.Compute/virtualMachines/', 'srbprdwedc002')]"
-                                                              ],
-                                                "properties":  {
-                                                                   "publisher":  "Microsoft.Azure.Diagnostics",
-                                                                   "type":  "IaaSDiagnostics",
-                                                                   "typeHandlerVersion":  "1.4",
-                                                                   "autoUpgradeMinorVersion":  true,
-                                                                   "settings":  {
-                                                                                    "xmlCfg":  "[base64(variables('wadcfgx'))]",
-                                                                                    "StorageAccount":  "srbprdwedcdiag01"
-                                                                                },
-                                                                   "protectedSettings":  {
-                                                                                             "storageAccountName":  "srbprdwedcdiag01",
-                                                                                             "storageAccountKey":  "[listkeys(resourceId('Microsoft.Storage/storageAccounts/', 'srbprdwedcdiag01'),'2015-05-01-preview').key1]",
-                                                                                             "storageAccountEndPoint":  "https://core.windows.net/"
-                                                                                         }
-                                                               }
-                                            }
-                                        ]
+                        "scheduledTransferPeriod": "PT1M"
                       }
-                  ],
-    "outputs":  {
-
+                    ]
+                  },
+                  "DiagnosticInfrastructureLogs": {
+                    "scheduledTransferLogLevelFilter": "Error"
+                  },
+                  "PerformanceCounters": {
+                    "scheduledTransferPeriod": "PT1M",
+                    "PerformanceCounterConfiguration": [
+                      {
+                        "counterSpecifier": "\\Processor Information(_Total)\\% Processor Time",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Processor Information(_Total)\\% Privileged Time",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Processor Information(_Total)\\% User Time",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Processor Information(_Total)\\Processor Frequency",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\System\\Processes",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Process(_Total)\\Thread Count",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Process(_Total)\\Handle Count",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\System\\System Up Time",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\System\\Context Switches/sec",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\System\\Processor Queue Length",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Memory\\Available Bytes",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Memory\\Committed Bytes",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Memory\\Cache Bytes",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Memory\\Pool Paged Bytes",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Memory\\Pool Nonpaged Bytes",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Memory\\Pages/sec",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Memory\\Page Faults/sec",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Process(_Total)\\Working Set",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Process(_Total)\\Working Set - Private",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\% Disk Time",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\% Disk Read Time",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\% Disk Write Time",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\% Idle Time",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\Disk Bytes/sec",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\Disk Read Bytes/sec",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\Disk Write Bytes/sec",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\Disk Transfers/sec",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\Disk Reads/sec",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\Disk Writes/sec",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\Avg. Disk sec/Transfer",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\Avg. Disk sec/Read",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\Avg. Disk sec/Write",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\Avg. Disk Queue Length",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\Avg. Disk Read Queue Length",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\Avg. Disk Write Queue Length",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\% Free Space",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\LogicalDisk(_Total)\\Free Megabytes",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Network Interface(*)\\Bytes Total/sec",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Network Interface(*)\\Bytes Sent/sec",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Network Interface(*)\\Bytes Received/sec",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Network Interface(*)\\Packets/sec",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Network Interface(*)\\Packets Sent/sec",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Network Interface(*)\\Packets Received/sec",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Network Interface(*)\\Packets Outbound Errors",
+                        "sampleRate": "PT1M"
+                      },
+                      {
+                        "counterSpecifier": "\\Network Interface(*)\\Packets Received Errors",
+                        "sampleRate": "PT1M"
+                      }
+                    ]
+                  },
+                  "WindowsEventLog": {
+                    "scheduledTransferPeriod": "PT1M",
+                    "DataSource": [
+                      {
+                        "name": "Application!*[Application[(Level = 1 or Level = 2 or Level = 3)]]"
+                      },
+                      {
+                        "name": "Security!*[System[band(Keywords,4503599627370496)]]"
+                      },
+                      {
+                        "name": "System!*[System[(Level = 1 or Level = 2 or Level = 3)]]"
+                      }
+                    ]
+                  }
                 }
+              }
+            },
+            "protectedSettings": {
+              "storageAccountName": "srbprdwedcdiag01",
+              "storageAccountKey": "[listkeys(resourceId('Microsoft.Storage/storageAccounts/', 'srbprdwedcdiag01'),'2015-06-15').key1]",
+              "storageAccountEndPoint": "https://core.windows.net/"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "outputs": {}
 }
 
