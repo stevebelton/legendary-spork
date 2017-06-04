@@ -118,7 +118,7 @@
       },
       "resources": [
         {
-          "name": "Microsoft.Insights.VMDiagnosticsSettings",
+          "name": "srbprdwedc002/IaaSDiagnostics",
           "type": "Microsoft.Compute/virtualMachines/extensions",
           "apiVersion": "2016-04-30-preview",
           "location": "[resourceGroup().location]",
