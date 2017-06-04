@@ -119,7 +119,7 @@
       "resources": [
         {
           "name": "srbprdwedc002/IaaSDiagnostics",
-          "type": "Microsoft.Compute/virtualMachines/extensions",
+          "type": "extensions",
           "apiVersion": "2016-04-30-preview",
           "location": "[resourceGroup().location]",
           "dependsOn": [
