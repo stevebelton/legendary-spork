@@ -118,7 +118,7 @@
       },
       "resources": [
         {
-          "name": "srbprdwedc001/IaaSDiagnostics",
+          "name": "IaaSDiagnostics",
           "type": "extensions",
           "apiVersion": "2016-04-30-preview",
           "location": "[resourceGroup().location]",
