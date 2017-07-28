@@ -1,0 +1,48 @@
+{
+    "$schema":  "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion":  "1.0.0.0",
+    "parameters":  {
+                       "adminPassword":  {
+                                             "type":  "securestring"
+                                         }
+                   },
+    "variables":  {
+
+                  },
+    "resources":  [
+                      {
+                          "name":  "[concat('drgprdnedc001','/CreateADForest')]",
+                          "type":  "Microsoft.Compute/virtualMachines/extensions",
+                          "apiVersion":  "2016-04-30-preview",
+                          "location":  "[resourceGroup().location]",
+                          "dependsOn":  [
+
+                                        ],
+                          "properties":  {
+                                             "publisher":  "Microsoft.Powershell",
+                                             "type":  "DSC",
+                                             "typeHandlerVersion":  "2.20",
+                                             "autoUpgradeMinorVersion":  true,
+                                             "settings":  {
+                                                              "properties":  {
+                                                                                 "adminCreds":  {
+                                                                                                    "Password":  "PrivateSettingsRef:adminPassword",
+                                                                                                    "UserName":  "exgadmin"
+                                                                                                },
+                                                                                 "domainName":  "exghub.com"
+                                                                             },
+                                                              "ModulesUrl":  "https://github.com/stevebelton/legendary-spork/blob/master/CreateADPDC.zip?raw=true",
+                                                              "ConfigurationFunction":  "CreateADPDC.ps1\\CreateADPDC"
+                                                          },
+                                             "protectedSettings":  {
+                                                                       "Items":  {
+                                                                                     "adminPassword":  "[parameters('adminPassword')]"
+                                                                                 }
+                                                                   }
+                                         }
+                      }
+                  ],
+    "outputs":  {
+
+                }
+}
