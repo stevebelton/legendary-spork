@@ -1,62 +1,60 @@
 {
-    "$schema":  "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
-    "contentVersion":  "1.0.0.0",
-    "parameters":  {
-                       "adminPassword":  {
-                                             "type":  "securestring"
-                                         },
-                       "domainCredentialinitPassword":  {
-                                                            "type":  "securestring"
-                                                        }
-                   },
-    "variables":  {
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "adminPassword": {
+            "type": "securestring"
+        },
+        "domainCredentialinitPassword": {
+            "type": "securestring"
+        }
+    },
+    "variables": {
 
-                  },
-    "resources":  [
-                      {
-                          "name":  "[concat('drgprdnedc001','/PDCConfig')]",
-                          "type":  "Microsoft.Compute/virtualMachines/extensions",
-                          "apiVersion":  "2016-04-30-preview",
-                          "location":  "[resourceGroup().location]",
-                          "dependsOn":  [
+    },
+    "resources": [{
+        "name": "[concat('srbprdnedc001','/DSC1')]",
+        "type": "Microsoft.Compute/virtualMachines/extensions",
+        "apiVersion": "2016-04-30-preview",
+        "location": "[resourceGroup().location]",
+        "dependsOn": [
 
-                                        ],
-                          "properties":  {
-                                             "publisher":  "Microsoft.Powershell",
-                                             "type":  "DSC",
-                                             "typeHandlerVersion":  "2.20",
-                                             "autoUpgradeMinorVersion":  true,
-                                             "settings":  {
-                                                              "properties":  {
-                                                                                 "webZoneWA2":  "10.0.0.101",
-                                                                                 "CB2IP":  "10.0.0.133",
-                                                                                 "WebAccessZoneName":  "dv1cw.exghub.com",
-                                                                                 "adminCreds":  {
-                                                                                                    "Password":  "PrivateSettingsRef:adminPassword",
-                                                                                                    "UserName":  "exgadmin"
-                                                                                                },
-                                                                                 "domainName":  "exghub.com",
-                                                                                 "CBZoneName":  "dv1cb.exghub.com",
-                                                                                 "CB1IP":  "10.0.0.132",
-                                                                                 "domainCredentialinit":  {
-                                                                                                              "Password":  "PrivateSettingsRef:domainCredentialinitPassword",
-                                                                                                              "UserName":  "daadmin"
-                                                                                                          },
-                                                                                 "webZoneWA1":  "10.0.0.100"
-                                                                             },
-                                                              "ModulesUrl":  "https://github.com/stevebelton/legendary-spork/blob/master/PDCConfig.ps1.zip?raw=true",
-                                                              "ConfigurationFunction":  "PDCConfig.ps1\\PDCConfig"
-                                                          },
-                                             "protectedSettings":  {
-                                                                       "Items":  {
-                                                                                     "adminPassword":  "[parameters('adminPassword')]",
-                                                                                     "domainCredentialinitPassword":  "[parameters('domainCredentialinitPassword')]"
-                                                                                 }
-                                                                   }
-                                         }
-                      }
-                  ],
-    "outputs":  {
-
+        ],
+        "properties": {
+            "publisher": "Microsoft.Powershell",
+            "type": "DSC",
+            "typeHandlerVersion": "2.20",
+            "autoUpgradeMinorVersion": true,
+            "settings": {
+                "properties": {
+                    "webZoneWA2": "10.0.0.101",
+                    "CB2IP": "10.0.0.133",
+                    "WebAccessZoneName": "dv1cw.exghub.com",
+                    "adminCreds": {
+                        "Password": "PrivateSettingsRef:adminPassword",
+                        "UserName": "exgadmin"
+                    },
+                    "domainName": "exghub.com",
+                    "CBZoneName": "dv1cb.exghub.com",
+                    "CB1IP": "10.0.0.132",
+                    "domainCredentialinit": {
+                        "Password": "PrivateSettingsRef:domainCredentialinitPassword",
+                        "UserName": "daadmin"
+                    },
+                    "webZoneWA1": "10.0.0.100"
+                },
+                "ModulesUrl": "https://github.com/stevebelton/legendary-spork/blob/master/PDCConfig.zip?raw=true",
+                "ConfigurationFunction": "PDCConfig.ps1\\PDCConfig"
+            },
+            "protectedSettings": {
+                "Items": {
+                    "adminPassword": "[parameters('adminPassword')]",
+                    "domainCredentialinitPassword": "[parameters('domainCredentialinitPassword')]"
                 }
+            }
+        }
+    }],
+    "outputs": {
+
+    }
 }
